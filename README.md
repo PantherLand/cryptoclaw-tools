@@ -9,6 +9,7 @@
 - `swap_token` for guarded ERC-20 swaps on one chain
 - `bridge_token` through a pluggable bridge provider layer, including Solana -> EVM routing
 - `deposit_to_hyperliquid` with guarded Arbitrum direct deposits and Polygon/Base USDC routing into Hyperliquid
+- `withdraw_from_hyperliquid` for guarded Hyperliquid spot withdrawals back to an EVM wallet
 - `deposit_to_polymarket` with guarded EVM deposits into a Polymarket wallet through Polymarket's Bridge API
 - `get_hyperliquid_market_state` and `get_hyperliquid_account_state` for native Hyperliquid read paths
 - `place_hyperliquid_order`, `protect_hyperliquid_position`, and `cancel_hyperliquid_order` for guarded Hyperliquid perpetual order flow
@@ -91,6 +92,7 @@ The first native Hyperliquid trading implementation is intentionally conservativ
 - `protect_hyperliquid_position` accepts ROE-style thresholds such as "take profit when equity doubles, stop when margin halves"
 - If the requested stop-loss would be beyond liquidation, the protection tool tightens it in front of liquidation and returns a warning
 - `get_hyperliquid_account_state` accepts an optional `dex` field to inspect a builder dex account state
+- `withdraw_from_hyperliquid` supports wallet withdrawals to an EVM destination address, with optional partial-amount quoting
 - HIP-3 orders require Hyperliquid `dexAbstraction`
 - The skill will not silently switch abstraction mode; builder-dex execution requires `enableDexAbstraction: true`
 - Trading safety is separate from treasury transfer safety:
@@ -296,6 +298,25 @@ node dist/index.js --action get_hyperliquid_account_state --input '{
 }'
 ```
 
+### withdraw_from_hyperliquid
+
+Quote or dry-run a withdrawal:
+
+```bash
+node dist/index.js --action withdraw_from_hyperliquid --input '{
+  "destination": "0xYourTreasuryWallet",
+  "amount": "100",
+  "approval": true,
+  "dryRun": true
+}'
+```
+
+Notes:
+
+- `amount` is optional; omit it to quote a full withdrawable balance path
+- Execution requires `approval: true`
+- Destination must be an EVM address
+
 ### place_hyperliquid_order
 
 Read-only quote path:
@@ -432,6 +453,14 @@ node dist/index.js --action quote_operation --input '{
 }'
 ```
 
+```bash
+node dist/index.js --action quote_operation --input '{
+  "operationType": "withdraw_from_hyperliquid",
+  "destination": "0xYourTreasuryWallet",
+  "amount": "100"
+}'
+```
+
 ## Output contract
 
 Successful calls return:
@@ -472,6 +501,7 @@ Rejected or failed calls return:
 - Hyperliquid deposits from Base and Polygon are automatically decomposed into bridge and deposit legs, with optional Arbitrum gas top-up planning when the destination wallet is short on gas.
 - Polymarket deposits use Polymarket's official Bridge API for supported-asset discovery, per-wallet deposit address creation, quoting, and status tracking.
 - Hyperliquid trading uses native Hyperliquid `info` and `exchange` API flows through a dedicated service, with perps-only scope in this first release.
+- Hyperliquid withdrawals use the native Hyperliquid exchange flow and expose a quote-first path before execution.
 - HIP-3 support is implemented for builder-dex perpetuals via `dex:COIN` routing and explicit dex-abstraction handling.
 - Swap execution is abstracted behind provider classes. `0x` is implemented first because it covers the initial target chains with a simple quote and execution API.
 - `Relay` and `Across` provider classes are present as extension points and intentionally throw until implemented.

@@ -189,7 +189,8 @@ function toNumber(value: string | null | undefined): number {
 
 export class HyperliquidTradingService {
   private readonly transport = new HttpTransport({
-    apiUrl: appConfig.hyperliquid.apiUrl
+    apiUrl: appConfig.hyperliquid.apiUrl,
+    timeout: 30_000
   });
 
   private readonly infoClient = new InfoClient({

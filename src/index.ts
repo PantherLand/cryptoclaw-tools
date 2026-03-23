@@ -26,6 +26,7 @@ import { quoteOperationTool } from "./tools/quoteOperation.js";
 import { safetyCheckTool } from "./tools/safetyCheck.js";
 import { swapTokenTool } from "./tools/swapToken.js";
 import { transferTokenTool } from "./tools/transferToken.js";
+import { withdrawFromHyperliquidTool } from "./tools/withdrawFromHyperliquid.js";
 import { buildFailure, toErrorMessage } from "./utils/formatting.js";
 import { safeParseJsonInput } from "./utils/validation.js";
 
@@ -84,7 +85,7 @@ async function main(): Promise<void> {
   if (!action) {
     printJson(
       buildFailure("quote_operation", "startup", "error", [
-        "Missing --action. Supported actions: get_balances, transfer_token, swap_token, bridge_token, deposit_to_hyperliquid, deposit_to_polymarket, get_hyperliquid_market_state, get_hyperliquid_account_state, place_hyperliquid_order, protect_hyperliquid_position, cancel_hyperliquid_order, safety_check, quote_operation."
+        "Missing --action. Supported actions: get_balances, transfer_token, swap_token, bridge_token, deposit_to_hyperliquid, deposit_to_polymarket, withdraw_from_hyperliquid, get_hyperliquid_market_state, get_hyperliquid_account_state, place_hyperliquid_order, protect_hyperliquid_position, cancel_hyperliquid_order, safety_check, quote_operation."
       ])
     );
     process.exitCode = 1;
@@ -133,6 +134,9 @@ async function main(): Promise<void> {
     case "deposit_to_polymarket":
       response = await depositToPolymarketTool(input, walletService, polymarketService, riskService);
       break;
+    case "withdraw_from_hyperliquid":
+      response = await withdrawFromHyperliquidTool(input, hyperliquidTradingService);
+      break;
     case "get_hyperliquid_market_state":
       response = await getHyperliquidMarketStateTool(input, hyperliquidTradingService);
       break;
@@ -176,6 +180,7 @@ async function main(): Promise<void> {
           "bridge_token",
           "deposit_to_hyperliquid",
           "deposit_to_polymarket",
+          "withdraw_from_hyperliquid",
           "get_hyperliquid_market_state",
           "get_hyperliquid_account_state",
           "place_hyperliquid_order",
@@ -208,6 +213,7 @@ main().catch((error: unknown) => {
       "bridge_token",
       "deposit_to_hyperliquid",
       "deposit_to_polymarket",
+      "withdraw_from_hyperliquid",
       "get_hyperliquid_market_state",
       "get_hyperliquid_account_state",
       "place_hyperliquid_order",

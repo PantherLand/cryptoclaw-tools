@@ -1,6 +1,6 @@
 {
   "name": "crypto-treasury-ops",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Production-oriented OpenClaw treasury and Hyperliquid trading skill for guarded crypto operations",
   "type": "module",
   "private": true,

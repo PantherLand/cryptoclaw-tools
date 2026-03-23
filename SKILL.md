@@ -1,6 +1,6 @@
 ---
 name: crypto-treasury-ops
-description: Safely manage EVM treasury operations and native Hyperliquid trading for OpenClaw agents, including wallet balance checks, guarded token transfers, cross-chain bridging, Hyperliquid deposits, Polymarket deposits, destination gas top-ups, trading safety, and structured quoting.
+description: Safely manage EVM treasury operations and native Hyperliquid trading for OpenClaw agents, including wallet balance checks, guarded token transfers, cross-chain bridging, Hyperliquid deposits and withdrawals, Polymarket deposits, destination gas top-ups, trading safety, and structured quoting.
 ---
 
 # crypto-treasury-ops
@@ -14,6 +14,7 @@ Use this skill when an OpenClaw agent needs to inspect or operate a treasury wal
 - Transfers native assets or ERC-20 tokens on one chain
 - Bridges tokens across chains through a pluggable provider layer, including Solana -> EVM routes
 - Deposits USDC to Hyperliquid with guarded Arbitrum direct flow plus Polygon/Base routing
+- Withdraws assets from Hyperliquid back to an EVM wallet with a quote-first flow
 - Deposits ERC-20 tokens from supported EVM chains into a Polymarket wallet
 - Reads Hyperliquid perpetual market state and account state
 - Places, protects, and cancels guarded Hyperliquid perpetual orders
@@ -238,6 +239,23 @@ Behavior:
 - If `dex` is provided, the tool queries that specific HIP-3 builder dex
 - Also returns `abstractionState` and `dexAbstractionEnabled`
 
+### `withdraw_from_hyperliquid`
+
+Inputs:
+
+- `destination`
+- `amount` optional
+- `approval` optional
+- `dryRun` optional
+
+Behavior:
+
+- Quotes a Hyperliquid withdrawal before execution
+- Supports partial withdrawals when `amount` is provided
+- Can be used in dry-run mode before submission
+- Requires `approval=true` for execution
+- Rejects invalid EVM destination addresses
+
 ### `place_hyperliquid_order`
 
 Inputs:
@@ -360,6 +378,7 @@ Behavior:
 
 - Estimates balance impact, gas, route fees, and minimum received
 - Estimates Polymarket deposit output and generated deposit address for `deposit_to_polymarket`
+- Estimates withdrawable balance usage and request details for `withdraw_from_hyperliquid`
 - Estimates Hyperliquid order notional, submission price, simulated fill price, and safety outcome for `place_hyperliquid_order`
 - Estimates derived TP/SL trigger prices and safety outcome for `protect_hyperliquid_position`
 - Returns a structured quote without execution
@@ -412,6 +431,14 @@ node dist/index.js --action get_hyperliquid_account_state --input '{"user":"0xYo
 
 ```bash
 node dist/index.js --action get_hyperliquid_account_state --input '{"user":"0xYourHyperliquidWallet","dex":"xyz"}'
+```
+
+```bash
+node dist/index.js --action withdraw_from_hyperliquid --input '{"destination":"0xYourTreasuryWallet","amount":"100","approval":true,"dryRun":true}'
+```
+
+```bash
+node dist/index.js --action quote_operation --input '{"operationType":"withdraw_from_hyperliquid","destination":"0xYourTreasuryWallet","amount":"100"}'
 ```
 
 ```bash
