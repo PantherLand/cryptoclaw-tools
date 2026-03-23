@@ -1,0 +1,9 @@
+node_modules/
+dist/
+
+.env
+.runtime/
+.tmp/
+.clawhub-install-test/
+
+*.tgz

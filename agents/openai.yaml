@@ -1,0 +1,4 @@
+interface:
+  display_name: "Crypto Treasury Ops"
+  short_description: "Guarded crypto treasury and Hyperliquid workflows"
+  default_prompt: "Use $crypto-treasury-ops to inspect balances, quote routes, and execute guarded treasury or Hyperliquid operations."
